@@ -26,6 +26,14 @@ class AutoModel:
 
         if "Qwen2ForCausalLM" in config.architectures[0]:
             return "airllm", "AirLLMQWen2"
+        elif "Gemma4ForCausalLM" in config.architectures[0]:
+            return "airllm", "AirLLMGemma4"
+        elif "Gemma3ForCausalLM" in config.architectures[0] or "Gemma3ForConditionalGeneration" in config.architectures[0]:
+            return "airllm", "AirLLMGemma3"
+        elif "Gemma2ForCausalLM" in config.architectures[0]:
+            return "airllm", "AirLLMGemma2"
+        elif "GemmaForCausalLM" in config.architectures[0]:
+            return "airllm", "AirLLMGemma"
         elif "QWen" in config.architectures[0]:
             return "airllm", "AirLLMQWen"
         elif "Baichuan" in config.architectures[0]:

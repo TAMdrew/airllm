@@ -29,6 +29,7 @@
 * [Best AI Facial Expression Editor](https://crazyfaceai.com)
 
 ## Updates
+[2026/04/01] v2.12.0: Support Gemma family (Gemma, Gemma2, Gemma3, Gemma4) natively already!
 [2024/08/20] v2.11.0: Support Qwen2.5
 
 [2024/08/18] v2.10.1 Support CPU inference. Support non sharded models. Thanks @NavodPeiris for the great work! 
@@ -176,9 +177,31 @@ Example colabs here:
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 
-#### example of other models (ChatGLM, QWen, Baichuan, Mistral, etc):
+#### example of other models (Gemma, ChatGLM, QWen, Baichuan, Mistral, etc):
 
 <details>
+
+* Gemma:
+
+```python
+from airllm import AutoModel
+MAX_LENGTH = 128
+model = AutoModel.from_pretrained("google/gemma-7b")
+# For Gemma2, Gemma3, Gemma4, just change the repo id.
+input_text = ['What is the capital of China?',]
+input_tokens = model.tokenizer(input_text,
+    return_tensors="pt",
+    return_attention_mask=False,
+    truncation=True,
+    max_length=MAX_LENGTH,
+    padding=True)
+generation_output = model.generate(
+    input_tokens['input_ids'].cuda(),
+    max_new_tokens=5,
+    use_cache= True,
+    return_dict_in_generate=True)
+model.tokenizer.decode(generation_output.sequences[0])
+```
 
 
 * ChatGLM:
