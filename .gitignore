@@ -1,0 +1,85 @@
+# =============================================================================
+# AirLLM .gitignore — Comprehensive rules for Python + ML projects
+# =============================================================================
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Model weights (CRITICAL — prevent committing large files)
+*.bin
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.gguf
+*.ggml
+*.npz
+model_weights/
+models/
+checkpoints/
+*.h5
+
+# Hugging Face cache
+.cache/
+huggingface/
+
+# Environment / Secrets
+.env
+.env.*
+*.key
+*.pem
+secrets/
+
+# Logs
+*.log
+logs/
+wandb/
+
+# Data files that shouldn't be tracked
+*.csv
+!rlhf/pre_post_dpo_model_output_belle_eval_1k.csv
+*.parquet
+*.arrow
+
+# Large datasets
+*.jsonl
+!anima_100k/120_topics_en.jsonl
+
+# Validation reports (generated artifacts)
+validation_report.json
+
+# Old code references
+_old/

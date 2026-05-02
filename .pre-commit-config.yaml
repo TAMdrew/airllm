@@ -1,0 +1,68 @@
+# Pre-commit hooks for AirLLM v3.0.0
+# Install: pip install pre-commit && pre-commit install
+# Run manually: pre-commit run --all-files
+repos:
+  # Ruff — lint + format (replaces flake8, isort, black)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.11.11
+    hooks:
+      - id: ruff
+        args: [ "--fix", "--exit-non-zero-on-fix" ]
+      - id: ruff-format
+
+  # Standard pre-commit hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-yaml
+      - id: check-toml
+      - id: check-json
+        exclude: ".*\\.ipynb$"
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+        args: [ "--markdown-linebreak-ext=md" ]
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: [ "--maxkb=500" ]
+      - id: debug-statements
+      - id: check-ast
+
+  # Security — detect secrets and common vulnerabilities
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args: [ "--baseline", ".secrets.baseline" ]
+        exclude: ".*\\.ipynb$|.*\\.json$"
+
+  # Bandit — Python security linter
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.8.3
+    hooks:
+      - id: bandit
+        args: [ "-c", "pyproject.toml", "--quiet" ]
+        additional_dependencies: [ "bandit[toml]" ]
+        exclude: "air_llm/tests/"
+
+  # Local hooks — full test suite + import verification
+  - repo: local
+    hooks:
+      - id: pytest-full
+        name: pytest (full unit test suite)
+        entry: poetry run pytest air_llm/tests/ --tb=short -q
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [ pre-commit ]
+
+      - id: import-check
+        name: verify all model imports
+        entry: poetry run python -c "from air_llm.airllm import __version__, AutoModel,
+          PolarQuantConfig, KVCacheCompressor, AirLLMLlama4, AirLLMOLMo2,
+          AirLLMFalcon3, AirLLMGranite, AirLLMJamba, AirLLMQwen, ModelRegistry;
+          print(f'AirLLM {__version__} | {len(ModelRegistry.list_supported())}
+          archs OK')"
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [ pre-commit ]

@@ -1,0 +1,128 @@
+[build-system]
+requires = ["setuptools>=68.0", "setuptools-scm>=8.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "airllm"
+version = "3.0.0"
+description = "100% local LLM inference — run 70B+ models on a single 4GB GPU. No cloud APIs, no subscriptions."
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.11"
+authors = [
+    {name = "Gavin Li", email = "gavinli@animaai.cloud"},
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    # All dependencies run 100% locally — no cloud API calls
+    "torch>=2.6.0",                # Local tensor computation
+    "transformers>=4.48.0",        # Local model config & tokenizer parsing
+    "safetensors>=0.5.0",          # Local weight file format (no network)
+    "accelerate>=0.36.0",          # Local device management
+    "tqdm>=4.66.0",                # Progress bars (no network)
+]
+
+[project.optional-dependencies]
+hub = ["huggingface-hub>=0.27.0"]  # Optional: HF Hub download integration
+quantization = ["bitsandbytes>=0.45.0"]
+awq = ["autoawq>=0.2.8"]          # AWQ quantization (4x faster inference)
+gptq = ["auto-gptq>=0.7.0", "optimum>=1.21.0"]  # GPTQ quantization
+gguf = ["gguf>=0.10.0"]           # GGUF format support for llama.cpp compatibility
+mlx = [
+    "mlx>=0.22.0",
+    "mlx-lm>=0.22.0",
+]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-cov>=6.0.0",
+    "ruff>=0.8.0",
+    "mypy>=1.14.0",
+]
+all = [
+    "airllm[hub,quantization,awq,gptq,gguf,mlx,dev]",
+]
+
+[project.urls]
+Homepage = "https://github.com/TAMdrew/airllm"
+Repository = "https://github.com/TAMdrew/airllm"
+Issues = "https://github.com/TAMdrew/airllm/issues"
+
+[tool.setuptools.packages.find]
+where = ["air_llm"]
+include = ["airllm*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "N",    # pep8-naming
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "SIM",  # flake8-simplify
+    "TCH",  # flake8-type-checking
+    "RUF",  # ruff-specific rules
+]
+ignore = [
+    "E402",   # module-level import not at top (unavoidable after try/except blocks)
+    "E501",   # line too long (handled by formatter)
+    "B905",   # zip without strict=
+    "N818",   # exception naming convention (backward compat: NotEnoughSpaceException)
+    "SIM105", # contextlib.suppress (explicit try/except is clearer with comments)
+    "SIM108", # ternary operator (readability preference)
+    "UP007",  # use X | Y for union types (handled via from __future__ import annotations)
+    "RUF022", # __all__ not sorted (we use logical grouping with comments)
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Legacy files: pre-existing code, not refactored
+"air_llm/airllm/airllm_llama_mlx.py" = [
+    "F401", "F841", "I001", "E741", "UP006", "UP035", "UP045",
+    "N806", "RUF002", "RUF059", "W292",
+]
+"air_llm/airllm/tokenization_baichuan.py" = ["I001", "UP006", "UP035", "UP045", "RUF012"]
+# Legacy notebooks and setup.py
+"air_llm/tests/test_notebooks/**" = ["I001", "W291", "W293", "F401", "E741"]
+"air_llm/examples/**/*.ipynb" = ["I001", "W291", "W293", "F401"]
+"air_llm/setup.py" = ["I001", "UP015"]
+# Test files: allow nested with-statements and .keys() for readability
+"air_llm/tests/**" = ["SIM117", "SIM118", "TCH003", "RUF043"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["airllm"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+check_untyped_defs = true
+ignore_missing_imports = true
+
+[tool.bandit]
+exclude_dirs = ["air_llm/tests", "_old", ".venv"]
+skips = ["B101"]  # assert used in tests and fail-fast validation
+
+[tool.pytest.ini_options]
+testpaths = ["air_llm/tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
